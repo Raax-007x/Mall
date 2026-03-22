@@ -30,17 +30,16 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
 
-      # ✅ FAIL-SAFE 1: Check karega ki android folder hai ya nahi. Agar nahi hai, tabhi banayega.
+      # ✅ NEW FIX: Added --project-name mall to bypass the Capital letter error!
       - name: Verify or Create Android Folder
         run: |
           if [ ! -d "android" ]; then
             echo "Android folder missing. Regenerating platform files..."
-            flutter create --platforms=android .
+            flutter create --platforms=android --project-name mall .
           else
             echo "✅ Android folder already exists."
           fi
 
-      # ✅ FAIL-SAFE 2: Check karega ki permission pehle se to nahi hai. Agar nahi hai, tabhi add karega.
       - name: Add INTERNET Permission safely
         run: |
           MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
@@ -61,5 +60,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          # Wildcard use kiya hai taki agar flutter output path change bhi kare to APK mil jaye
           path: build/app/outputs/**/*.apk
