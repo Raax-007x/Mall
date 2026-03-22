@@ -30,7 +30,6 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
 
-      # ✅ NEW FIX: Added --project-name mall to bypass the Capital letter error!
       - name: Verify or Create Android Folder
         run: |
           if [ ! -d "android" ]; then
@@ -39,6 +38,18 @@ jobs:
           else
             echo "✅ Android folder already exists."
           fi
+
+      # ✅ NEW FIX: Ye step automatically Kotlin ka version 1.9.22 kar dega
+      - name: Fix Kotlin Version
+        run: |
+          if [ -f "android/settings.gradle" ]; then
+            sed -i 's/id "org.jetbrains.kotlin.android" version ".*" apply false/id "org.jetbrains.kotlin.android" version "1.9.22" apply false/g' android/settings.gradle
+            sed -i "s/id 'org.jetbrains.kotlin.android' version '.*' apply false/id 'org.jetbrains.kotlin.android' version '1.9.22' apply false/g" android/settings.gradle
+          fi
+          if [ -f "android/build.gradle" ]; then
+            sed -i "s/ext.kotlin_version = '[^']*'/ext.kotlin_version = '1.9.22'/g" android/build.gradle
+          fi
+          echo "✅ Kotlin version automatically updated to 1.9.22"
 
       - name: Add INTERNET Permission safely
         run: |
