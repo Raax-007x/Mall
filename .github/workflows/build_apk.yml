@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4 # Updated to v4
+        uses: actions/checkout@v4
 
       - name: Setup Java
-        uses: actions/setup-java@v4 # Updated to v4
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -27,10 +27,14 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0' # Stable Flutter version
+          flutter-version: '3.24.0'
           channel: 'stable'
 
-      # Yeh step aapke AndroidManifest.xml me Internet permission inject karega
+      # ✅ NEW FIX: Ye step ensure karega ki android folder ban jaye agar GitHub par missing hai
+      - name: Create Android Platform Files
+        run: flutter create --platforms=android .
+
+      # ✅ Ye step automatically AndroidManifest.xml banne ke baad usme INTERNET permission daal dega
       - name: Add Permissions to AndroidManifest
         run: |
           sed -i '/<manifest/a \    <uses-permission android:name="android.permission.INTERNET" />' android/app/src/main/AndroidManifest.xml
@@ -43,7 +47,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4 # FIXED: Updated to v4 to solve your error
+        uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
