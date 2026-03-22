@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  # Ye line add karne se aap manually bhi GitHub se build start kar sakte hain
   workflow_dispatch:
 
 jobs:
@@ -17,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Updated to v4
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4 # Updated to v4
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -28,8 +27,14 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0' # Apne according flutter version change kar sakte hain
+          flutter-version: '3.24.0' # Stable Flutter version
           channel: 'stable'
+
+      # Yeh step aapke AndroidManifest.xml me Internet permission inject karega
+      - name: Add Permissions to AndroidManifest
+        run: |
+          sed -i '/<manifest/a \    <uses-permission android:name="android.permission.INTERNET" />' android/app/src/main/AndroidManifest.xml
+          echo "✅ INTERNET permission successfully added to AndroidManifest.xml"
 
       - name: Get Dependencies
         run: flutter pub get
@@ -38,7 +43,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # FIXED: Updated to v4 to solve your error
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
