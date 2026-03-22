@@ -30,15 +30,26 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
 
-      # ✅ NEW FIX: Ye step ensure karega ki android folder ban jaye agar GitHub par missing hai
-      - name: Create Android Platform Files
-        run: flutter create --platforms=android .
-
-      # ✅ Ye step automatically AndroidManifest.xml banne ke baad usme INTERNET permission daal dega
-      - name: Add Permissions to AndroidManifest
+      # ✅ FAIL-SAFE 1: Check karega ki android folder hai ya nahi. Agar nahi hai, tabhi banayega.
+      - name: Verify or Create Android Folder
         run: |
-          sed -i '/<manifest/a \    <uses-permission android:name="android.permission.INTERNET" />' android/app/src/main/AndroidManifest.xml
-          echo "✅ INTERNET permission successfully added to AndroidManifest.xml"
+          if [ ! -d "android" ]; then
+            echo "Android folder missing. Regenerating platform files..."
+            flutter create --platforms=android .
+          else
+            echo "✅ Android folder already exists."
+          fi
+
+      # ✅ FAIL-SAFE 2: Check karega ki permission pehle se to nahi hai. Agar nahi hai, tabhi add karega.
+      - name: Add INTERNET Permission safely
+        run: |
+          MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
+          if grep -q "android.permission.INTERNET" "$MANIFEST_PATH"; then
+            echo "✅ INTERNET permission already exists in AndroidManifest.xml"
+          else
+            sed -i '/<manifest/a \    <uses-permission android:name="android.permission.INTERNET" />' "$MANIFEST_PATH"
+            echo "✅ INTERNET permission successfully injected!"
+          fi
 
       - name: Get Dependencies
         run: flutter pub get
@@ -50,4 +61,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          # Wildcard use kiya hai taki agar flutter output path change bhi kare to APK mil jaye
+          path: build/app/outputs/**/*.apk
