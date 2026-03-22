@@ -1,16 +1,19 @@
-name: shoe_store_app
-description: A new Flutter e-commerce project.
+# pubspec.yaml
+
+name: mall_app
+description: Naya dynamic Mall App with vouchers.
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: '>=3.1.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  # Basic icons ke liye
   cupertino_icons: ^1.0.6
+  # Naya package theme persist karne ke liye
+  shared_preferences: ^2.2.2 
 
 dev_dependencies:
   flutter_test:
